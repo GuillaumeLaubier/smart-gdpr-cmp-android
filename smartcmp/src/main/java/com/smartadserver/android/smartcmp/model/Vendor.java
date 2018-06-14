@@ -44,6 +44,9 @@ public class Vendor implements Parcelable {
     @Nullable
     private Date deletedDate;
 
+    // Whether or not the vendor is whitelisted.
+    private boolean whitelisted = false;
+
     /**
      * Initialize a new instance of Vendor.
      *
@@ -177,6 +180,22 @@ public class Vendor implements Parcelable {
     }
 
     /**
+     * Specify if the vendor is whitelisted or not.
+     *
+     * @param whitelisted whether or not the vendor is whitelisted.
+     */
+    public void setWhiteListed(boolean whitelisted) {
+        this.whitelisted = whitelisted;
+    }
+
+    /**
+     * @return true if the vendor is whitelisted, false otherwise.
+     */
+    public boolean isWhiteListed() {
+        return whitelisted;
+    }
+
+    /**
      * Set the Date of deletion of the vendor.
      *
      * @param deletedDate The date of deletion.
@@ -195,19 +214,19 @@ public class Vendor implements Parcelable {
         Vendor vendor = (Vendor) o;
 
         if (id != vendor.id) return false;
+        if (whitelisted != vendor.whitelisted) return false;
         if (!name.equals(vendor.name)) return false;
         if (!purposes.equals(vendor.purposes)) return false;
         if (!legitimatePurposes.equals(vendor.legitimatePurposes)) return false;
         if (!features.equals(vendor.features)) return false;
-        if (policyURL != null ? !policyURL.equals(vendor.policyURL) : vendor.policyURL != null) {
+        if (policyURL != null ? !policyURL.equals(vendor.policyURL) : vendor.policyURL != null)
             return false;
-        }
         return deletedDate != null ? deletedDate.equals(vendor.deletedDate) : vendor.deletedDate == null;
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(new Object[]{id, name, purposes, legitimatePurposes, features, policyURL, deletedDate});
+        return Arrays.hashCode(new Object[]{id, name, purposes, legitimatePurposes, features, policyURL, deletedDate, whitelisted});
     }
 
     @Override
@@ -224,6 +243,7 @@ public class Vendor implements Parcelable {
         dest.writeList(this.features);
         dest.writeSerializable(this.policyURL);
         dest.writeLong(this.deletedDate != null ? this.deletedDate.getTime() : -1);
+        dest.writeByte(this.whitelisted ? (byte) 1 : (byte) 0);
     }
 
     protected Vendor(Parcel in) {
@@ -238,6 +258,7 @@ public class Vendor implements Parcelable {
         this.policyURL = (URL) in.readSerializable();
         long tmpDeletedDate = in.readLong();
         this.deletedDate = tmpDeletedDate == -1 ? null : new Date(tmpDeletedDate);
+        this.whitelisted = in.readByte() != 0;
     }
 
     public static final Creator<Vendor> CREATOR = new Creator<Vendor>() {
