@@ -2,6 +2,7 @@ package com.smartadserver.android.smartcmp.util;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,25 +24,27 @@ public class JSONAsyncTask extends AsyncTask {
 
     static private final int TIMEOUT = 30000;
 
-    @NonNull
+    @Nullable
     protected JSONAsyncTaskListener listener;
 
-    public JSONAsyncTask(@NonNull JSONAsyncTaskListener listener) {
+    public JSONAsyncTask(@Nullable JSONAsyncTaskListener listener) {
         this.listener = listener;
     }
 
     @Override
     protected void onPostExecute(Object o) {
-        String jsonString = (String) o;
-        if (jsonString != null) {
-            try {
-                listener.JSONAsyncTaskDidSucceedDownloadingJSONObject(new JSONObject(jsonString));
-                return;
-            } catch (JSONException ignored) {
+        if (listener != null) {
+            String jsonString = (String) o;
+            if (jsonString != null) {
+                try {
+                    listener.JSONAsyncTaskDidSucceedDownloadingJSONObject(new JSONObject(jsonString));
+                    return;
+                } catch (JSONException ignored) {
+                }
             }
-        }
 
-        listener.JSONAsyncTaskDidFailDownloadingJSONObject();
+            listener.JSONAsyncTaskDidFailDownloadingJSONObject();
+        }
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.smartadserver.android.smartcmp.model.VendorListURL;
 import com.smartadserver.android.smartcmp.util.JSONAsyncTask;
 import com.smartadserver.android.smartcmp.util.JSONAsyncTaskListener;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URL;
@@ -47,6 +48,10 @@ public class VendorListManager {
 
     // flag to mark that a download attempt of the vendors list is currently in progress
     private boolean downloadingVendorsList = false;
+
+    // The JSONAsyncTask used to download the publisher vendor list.
+    @Nullable
+    private JSONAsyncTask pubVendorJSONAsyncTask;
 
     /**
      * Initialize a VendorListManager that will download only the latest version of the vendor list.
@@ -121,6 +126,17 @@ public class VendorListManager {
     }
 
     /**
+     * Instantiate and return a new JSONAsyncTask used for the publisher vendor list.
+     * Explicitly defined for test purpose.
+     *
+     * @return a new JSONAsyncTask.
+     */
+    @VisibleForTesting
+    protected JSONAsyncTask getNewJSONAsyncTaskForPubVendorList() {
+        return new JSONAsyncTask(null);
+    }
+
+    /**
      * Instantiate and return a new JSONAsyncTaskListener used for the download of the main vendor list.
      *
      * @return a new JSONAsyncTaskListener.
@@ -170,7 +186,22 @@ public class VendorListManager {
             public void JSONAsyncTaskDidSucceedDownloadingJSONObject(@NonNull JSONObject localizedVendorListJSON) {
                 downloadingVendorsList = false;
                 try {
-                    listener.onVendorListUpdateSuccess(new VendorList(vendorListJSON, localizedVendorListJSON));
+                    //listener.onVendorListUpdateSuccess(new VendorList(vendorListJSON, localizedVendorListJSON));
+                    VendorList vendorList = new VendorList(vendorListJSON, localizedVendorListJSON);
+                    // TODO parse publisher vendor list in VendorList model constructor
+
+                    // Try to retrieve the pubvendors.json file
+                    if (pubVendorJSONAsyncTask != null) {
+                        try {
+                            JSONObject pubVendorsJSON = new JSONObject((String) pubVendorJSONAsyncTask.get());
+
+                            int globalVendorListVersion = pubVendorsJSON.getInt("globalVendorListVersion");
+
+
+                        } catch (JSONException ignored) {
+                            // Something happened, nothing to do, do not take publisher vendor list into account.
+                        }
+                    }
                 } catch (Exception e) {
                     listener.onVendorListUpdateFail(e);
                 }
@@ -254,6 +285,17 @@ public class VendorListManager {
             downloadingVendorsList = true;
             JSONAsyncTask jsonAsyncTask = getNewJSONAsyncTaskForVendorList(getJSONAsyncTaskListenerForMainVendorList());
             jsonAsyncTask.execute(vendorListURL.getURL());
+
+            // Trying to download the pubvendors.json.
+            if (vendorListURL.getPubVendorsURL() != null) {
+                // Reset the pubVendorJSONAsyncTask
+                pubVendorJSONAsyncTask = null;
+                pubVendorJSONAsyncTask = getNewJSONAsyncTaskForPubVendorList();
+
+                if (pubVendorJSONAsyncTask != null) {
+                    pubVendorJSONAsyncTask.execute(vendorListURL.getPubVendorsURL());
+                }
+            }
         }
     }
 
