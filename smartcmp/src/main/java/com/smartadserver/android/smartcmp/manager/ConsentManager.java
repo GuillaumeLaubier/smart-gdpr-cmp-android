@@ -26,6 +26,7 @@ import com.smartadserver.android.smartcmp.vendorlist.VendorListManager;
 import com.smartadserver.android.smartcmp.vendorlist.VendorListManagerListener;
 
 import java.io.IOException;
+import java.net.URL;
 
 /**
  * Singleton class that manages the GDPR user consent for the current device
@@ -52,6 +53,9 @@ public class ConsentManager implements VendorListManagerListener {
 
     // The application context.
     private Context context;
+
+    // the URL of the pubvendors.json
+    private URL pubVendorsURL;
 
     // The consent tool configuration needed for all strings used in the UI.
     private ConsentToolConfiguration consentToolConfiguration;
@@ -198,8 +202,8 @@ public class ConsentManager implements VendorListManagerListener {
      * @param consentToolConfiguration An instance of ConsentToolConfiguration containing all the strings needed by the UI.
      */
     @SuppressWarnings("SameParameterValue")
-    public void configure(@NonNull Application application, @NonNull Language language, @NonNull ConsentToolConfiguration consentToolConfiguration) {
-        configure(application, language, consentToolConfiguration, DEFAULT_LAT_VALUE, DEFAULT_REFRESH_INTERVAL);
+    public void configure(@NonNull Application application, @NonNull Language language, URL pubVendorsURL, @NonNull ConsentToolConfiguration consentToolConfiguration) {
+        configure(application, language, pubVendorsURL, consentToolConfiguration, DEFAULT_LAT_VALUE, DEFAULT_REFRESH_INTERVAL);
     }
 
     /**
@@ -215,8 +219,8 @@ public class ConsentManager implements VendorListManagerListener {
      * @param showConsentToolWhenLimitedAdTracking Whether or not the consent tool UI should be shown if the user has checked Limit Ad Tracking in his device's preferences. If false, the UI will never be shown if user checked LAT and consent string will be formatted has "user does not give consent".
      */
     @SuppressWarnings("unused")
-    public void configure(@NonNull Application application, @NonNull Language language, @NonNull ConsentToolConfiguration consentToolConfiguration, boolean showConsentToolWhenLimitedAdTracking) {
-        configure(application, language, consentToolConfiguration, showConsentToolWhenLimitedAdTracking, DEFAULT_REFRESH_INTERVAL);
+    public void configure(@NonNull Application application, @NonNull Language language, URL pubVendorsURL, @NonNull ConsentToolConfiguration consentToolConfiguration, boolean showConsentToolWhenLimitedAdTracking) {
+        configure(application, language, pubVendorsURL, consentToolConfiguration, showConsentToolWhenLimitedAdTracking, DEFAULT_REFRESH_INTERVAL);
     }
 
     /**
@@ -232,7 +236,7 @@ public class ConsentManager implements VendorListManagerListener {
      * @param showConsentToolWhenLimitedAdTracking Whether or not the consent tool UI should be shown if the user has checked Limit Ad Tracking in his device's preferences. If false, the UI will never be shown if user checked LAT and consent string will be formatted has "user does not give consent".
      * @param refreshingInterval                   The interval in milliseconds te refresh the vendor list.
      */
-    public void configure(@NonNull Application application, @NonNull Language language, @NonNull ConsentToolConfiguration consentToolConfiguration, boolean showConsentToolWhenLimitedAdTracking, long refreshingInterval) {
+    public void configure(@NonNull Application application, @NonNull Language language, URL pubVendorsURL, @NonNull ConsentToolConfiguration consentToolConfiguration, boolean showConsentToolWhenLimitedAdTracking, long refreshingInterval) {
         if (isConfigured) {
             logErrorMessage("ConsentManager is already configured for this session. You cannot reconfigure.");
             return;
@@ -244,6 +248,8 @@ public class ConsentManager implements VendorListManagerListener {
 
         // register an ActivityLifecycleCallbacks on the application
         application.registerActivityLifecycleCallbacks(new ApplicationLifecycleListener());
+
+        this.pubVendorsURL = pubVendorsURL;
 
         this.consentToolConfiguration = consentToolConfiguration;
 
