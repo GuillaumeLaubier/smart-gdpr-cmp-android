@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.smartadserver.android.smartcmp.Constants;
 
+import java.net.URL;
+
 /**
  * Reprensents the URL to a vendor list.
  */
@@ -20,13 +22,19 @@ public class VendorListURL {
     @Nullable
     private String localizedURL;
 
+    // The actual URL of the pubvendors.json.
+    @Nullable
+    private URL pubVendorsURL;
+
     /**
      * Initialize a VendorListURL object that represents the latest vendor list.
      *
      * @param language The language of the user if a localized URL has to be used.
+     * @param pubVendorsURL The URL of the pubvendors.json file.
      */
-    public VendorListURL(@Nullable Language language) {
+    public VendorListURL(@Nullable Language language, @Nullable URL pubVendorsURL) {
         URL = Constants.VendorList.DefaultEndPoint;
+        this.pubVendorsURL = pubVendorsURL;
 
         if (language != null) {
             localizedURL = Constants.VendorList.DefaultLocalizedEndPoint.replace("{language}", language.toString());
@@ -67,5 +75,13 @@ public class VendorListURL {
     @Nullable
     public String getLocalizedURL() {
         return localizedURL;
+    }
+
+    /**
+     * @return the URL of the pubvendors.json file.
+     */
+    @Nullable
+    public URL getPubVendorsURL() {
+        return pubVendorsURL;
     }
 }

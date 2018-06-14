@@ -13,6 +13,7 @@ import com.smartadserver.android.smartcmp.util.JSONAsyncTaskListener;
 
 import org.json.JSONObject;
 
+import java.net.URL;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -56,8 +57,8 @@ public class VendorListManager {
      * @param language        The language wanted for the vendor list. Needs to be ISO-639-1.
      * @throws IllegalArgumentException if given language is not ISO 639-1.
      */
-    public VendorListManager(@NonNull VendorListManagerListener listener, long refreshInterval, long retryInterval, @Nullable Language language) throws IllegalArgumentException {
-        this(listener, refreshInterval, retryInterval, language, -1);
+    public VendorListManager(@NonNull VendorListManagerListener listener, long refreshInterval, long retryInterval, @Nullable Language language, @Nullable URL pubVendorURL) throws IllegalArgumentException {
+        this(listener, refreshInterval, retryInterval, language, pubVendorURL, -1);
     }
 
     /**
@@ -70,11 +71,11 @@ public class VendorListManager {
      * @param vendorListVersion The wanted version of the vendor list (or the latest if -1).
      * @throws IllegalArgumentException if given language is not ISO 639-1.
      */
-    public VendorListManager(@NonNull VendorListManagerListener listener, long refreshInterval, long retryInterval, @Nullable Language language, int vendorListVersion) throws IllegalArgumentException {
+    public VendorListManager(@NonNull VendorListManagerListener listener, long refreshInterval, long retryInterval, @Nullable Language language, @Nullable URL pubVendorURL, int vendorListVersion) throws IllegalArgumentException {
         this.listener = listener;
         this.refreshInterval = refreshInterval;
         this.retryInterval = retryInterval;
-        vendorListURL = vendorListVersion == -1 ? new VendorListURL(language) : new VendorListURL(vendorListVersion, language);
+        vendorListURL = vendorListVersion == -1 ? new VendorListURL(language, pubVendorURL) : new VendorListURL(vendorListVersion, language);
     }
 
     /**
