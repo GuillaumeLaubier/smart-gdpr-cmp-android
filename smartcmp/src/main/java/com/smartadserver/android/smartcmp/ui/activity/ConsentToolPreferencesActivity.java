@@ -1,4 +1,4 @@
-package com.smartadserver.android.smartcmp.activity;
+package com.smartadserver.android.smartcmp.ui.activity;
 
 import android.content.Intent;
 import android.graphics.PorterDuff;
